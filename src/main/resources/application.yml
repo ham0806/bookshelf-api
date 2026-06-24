@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: bookshelf-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bookshelf}
+    username: ${SPRING_DATASOURCE_USERNAME:bookshelf}
+    password: ${SPRING_DATASOURCE_PASSWORD:bookshelf}
+  flyway:
+    enabled: true
+  jooq:
+    sql-dialect: POSTGRES
+
+server:
+  error:
+    include-message: always
