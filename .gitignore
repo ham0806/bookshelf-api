@@ -1,0 +1,15 @@
+.gradle/
+build/
+node_modules/
+out/
+.idea/
+*.iml
+*.log
+.DS_Store
+
+# Codex local workspace artifacts
+.agents/
+.codex/
+.cursor/
+outputs/
+work/
