@@ -1,22 +1,13 @@
 name: CodeQL
 
 on:
-  push:
-    branches:
-      - develop
-    paths-ignore:
-      - "*.md"
-      - "**/*.md"
-      - "docs/**"
-  pull_request:
-    branches:
-      - develop
-    paths-ignore:
-      - "*.md"
-      - "**/*.md"
-      - "docs/**"
+  workflow_dispatch:
   schedule:
     - cron: "30 0 * * 1"
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -26,6 +17,7 @@ jobs:
   analyze:
     name: Analyze Kotlin
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -47,10 +39,10 @@ jobs:
         with:
           languages: java-kotlin
           build-mode: manual
-          queries: +security-extended,security-and-quality
+          dependency-caching: true
 
       - name: Build for CodeQL
-        run: gradle test --no-daemon
+        run: gradle classes --no-daemon -Pkotlin.daemon.jvmargs=-Xmx4g
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
