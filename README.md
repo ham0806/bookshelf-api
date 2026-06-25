@@ -2,16 +2,37 @@
 
 書籍と著者を管理するバックエンド API です。
 
-## 構成
+## 使用技術
 
-- Kotlin
-- Spring Boot
-- jOOQ
-- Flyway
-- PostgreSQL
-- H2 for test
+この repository はフロントエンドを持たないバックエンド API です。HTTP リクエストとして JSON を受け取り、処理結果を JSON で返します。
 
-フロントエンドはありません。API は JSON を受け取り、JSON を返します。
+### アプリケーション
+
+| 技術 | 用途 |
+| --- | --- |
+| Kotlin 1.9.25 | アプリケーション本体とテストコードの実装言語として使用しています。 |
+| Java 21 | Kotlin/JVM の実行基盤として使用しています。Gradle toolchain で Java 21 を指定しています。 |
+| Spring Boot 3.3.5 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。 |
+| Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
+| Spring Validation | request DTO の入力制約を Bean Validation で検証するために使用しています。 |
+| Jackson Kotlin module | Kotlin の data class と JSON の相互変換に使用しています。 |
+
+### データベース
+
+| 技術 | 用途 |
+| --- | --- |
+| PostgreSQL | アプリケーション実行時の RDB として使用しています。Docker Compose では `postgres:16-alpine` を起動します。 |
+| jOOQ | Repository 層で SQL を組み立て、RDB にアクセスするために使用しています。この実装では jOOQ codegen は使わず、`DSLContext` と明示的なテーブル定義で実装しています。 |
+| Flyway | `src/main/resources/db/migration` 配下の migration による DB schema 管理に使用しています。 |
+| H2 | テスト実行時のインメモリ DB として使用しています。PostgreSQL mode で起動し、統合テストを軽量に実行します。 |
+
+### ビルド・実行・テスト
+
+| 技術 | 用途 |
+| --- | --- |
+| Gradle | build、test、bootRun の実行に使用しています。Docker Compose では `gradle:8.10.2-jdk21` image を使用します。 |
+| Docker Compose | PostgreSQL とアプリケーション、またはテスト実行用 Gradle 環境をまとめて起動するために使用しています。 |
+| JUnit 5 / Spring Boot Test | Service の業務ルール単体テストと、HTTP API から DB まで含めた統合テストに使用しています。 |
 
 ## 起動
 
