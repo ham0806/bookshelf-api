@@ -229,6 +229,30 @@ class BookshelfApiTest(
         assertTrue(response.body?.contains("出版済みの書籍は未出版へ変更できません") == true)
     }
 
+    @Test
+    fun `OpenAPI 仕様を取得できる`() {
+        val response = restTemplate.getForEntity(
+            "/v3/api-docs",
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body?.contains("\"openapi\"") == true)
+        assertTrue(response.body?.contains("\"/api/books\"") == true)
+        assertTrue(response.body?.contains("\"/api/authors\"") == true)
+    }
+
+    @Test
+    fun `Swagger UI を表示できる`() {
+        val response = restTemplate.getForEntity(
+            "/swagger-ui/index.html",
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body?.contains("Swagger UI") == true)
+    }
+
     private fun createAuthor(name: String, birthDate: LocalDate): AuthorResponse {
         val response = restTemplate.postForEntity(
             "/api/authors",
