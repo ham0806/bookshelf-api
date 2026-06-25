@@ -5,7 +5,15 @@ on:
     branches:
       - main
       - develop
+    paths-ignore:
+      - "*.md"
+      - "**/*.md"
+      - "docs/**"
   pull_request:
+    paths-ignore:
+      - "*.md"
+      - "**/*.md"
+      - "docs/**"
 
 permissions:
   contents: read

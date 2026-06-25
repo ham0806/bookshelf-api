@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - develop
+    paths-ignore:
+      - "*.md"
+      - "**/*.md"
+      - "docs/**"
   pull_request:
     branches:
       - develop
+    paths-ignore:
+      - "*.md"
+      - "**/*.md"
+      - "docs/**"
   schedule:
     - cron: "30 0 * * 1"
 
