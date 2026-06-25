@@ -1,6 +1,5 @@
 .gradle/
 build/
-node_modules/
 out/
 .idea/
 *.iml
@@ -10,6 +9,5 @@ out/
 # Codex local workspace artifacts
 .agents/
 .codex/
-.cursor/
 outputs/
 work/
