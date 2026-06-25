@@ -15,6 +15,7 @@
 | Spring Boot 3.3.5 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。 |
 | Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
 | Spring Validation | request DTO の入力制約を Bean Validation で検証するために使用しています。 |
+| Springdoc OpenAPI / Swagger UI | Controller と DTO から OpenAPI 仕様を自動生成し、Swagger UI で API を確認するために使用しています。 |
 | Jackson Kotlin module | Kotlin の data class と JSON の相互変換に使用しています。 |
 
 ### データベース
@@ -85,6 +86,27 @@ mise を使う場合は以下です。
 mise install
 .\gradlew.bat test
 ```
+
+## CI / 品質確認
+
+GitHub Actions でテストとセキュリティ確認を実行します。
+
+- `CI`: push / pull request 時に `docker compose run --rm test` を実行し、Service 単体テストと Spring Boot 統合テストを確認します。実行後は Docker Compose のリソースを片付けます。
+- `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle test --no-daemon` で build 可能な状態を確認します。
+- `Secret Scan`: Gitleaks により、token や秘密情報を誤って commit していないか確認します。
+- `Dependabot`: Gradle、Docker Compose、GitHub Actions の依存関係更新を週次で確認します。
+
+README や docs だけの変更では、通常の CI テストは `paths-ignore` により省略されます。
+
+## API 仕様
+
+OpenAPI 仕様は Springdoc OpenAPI により、実行中のアプリケーションから自動生成します。
+
+アプリケーション起動後、以下の URL で確認できます。
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
 
 ## API 例
 
