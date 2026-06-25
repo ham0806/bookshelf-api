@@ -39,11 +39,18 @@ Docker Compose のリソースを片付ける場合:
 docker compose down
 ```
 
-ローカルに Java 21 と Gradle がある場合のみ、以下も使用できる。
+ローカルに Java 21 がある場合のみ、以下も使用できる。
 
 ```powershell
-gradle test
-gradle bootRun
+.\gradlew.bat test
+.\gradlew.bat bootRun
+```
+
+ローカル Java は任意で mise により管理できる。
+
+```powershell
+mise install
+.\gradlew.bat test
 ```
 
 ## Architecture

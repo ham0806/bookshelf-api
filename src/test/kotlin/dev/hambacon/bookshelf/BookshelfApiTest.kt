@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -156,6 +157,37 @@ class BookshelfApiTest(
     }
 
     @Test
+    fun `書籍には1人以上の著者が必要`() {
+        val response = restTemplate.postForEntity(
+            "/api/books",
+            CreateBookRequest(
+                title = "著者なしの本",
+                price = BigDecimal("1000.00"),
+                authorIds = emptyList(),
+            ),
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    fun `存在しない著者を指定した書籍登録は拒否する`() {
+        val response = restTemplate.postForEntity(
+            "/api/books",
+            CreateBookRequest(
+                title = "存在しない著者の本",
+                price = BigDecimal("1000.00"),
+                authorIds = listOf(UUID.randomUUID()),
+            ),
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertTrue(response.body?.contains("著者が見つかりません") == true)
+    }
+
+    @Test
     fun `著者の生年月日は現在日以前でなければならない`() {
         val response = restTemplate.postForEntity(
             "/api/authors",
@@ -197,6 +229,30 @@ class BookshelfApiTest(
         assertTrue(response.body?.contains("出版済みの書籍は未出版へ変更できません") == true)
     }
 
+    @Test
+    fun `OpenAPI 仕様を取得できる`() {
+        val response = restTemplate.getForEntity(
+            "/v3/api-docs",
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body?.contains("\"openapi\"") == true)
+        assertTrue(response.body?.contains("\"/api/books\"") == true)
+        assertTrue(response.body?.contains("\"/api/authors\"") == true)
+    }
+
+    @Test
+    fun `Swagger UI を表示できる`() {
+        val response = restTemplate.getForEntity(
+            "/swagger-ui/index.html",
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body?.contains("Swagger UI") == true)
+    }
+
     private fun createAuthor(name: String, birthDate: LocalDate): AuthorResponse {
         val response = restTemplate.postForEntity(
             "/api/authors",
@@ -211,7 +267,7 @@ class BookshelfApiTest(
     private fun createBook(
         title: String,
         price: BigDecimal,
-        authorIds: List<java.util.UUID>,
+        authorIds: List<UUID>,
         publicationStatus: PublicationStatus,
     ): BookResponse {
         val response = restTemplate.postForEntity(

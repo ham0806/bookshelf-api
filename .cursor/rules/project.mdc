@@ -1,0 +1,8 @@
+---
+description: Bookshelf API repository rules
+alwaysApply: true
+---
+
+この repository の AI 向け指示は `AGENTS.md` に集約しています。
+
+Cursor で作業する場合も、実装方針、検証コマンド、ドメインルール、repository hygiene は `AGENTS.md` を正としてください。
