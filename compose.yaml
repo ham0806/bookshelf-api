@@ -16,7 +16,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   app:
-    image: gradle:8.10.2-jdk21
+    image: gradle:9.6.0-jdk21
     working_dir: /workspace
     command: ["gradle", "bootRun", "--no-daemon"]
     depends_on:
@@ -33,7 +33,7 @@ services:
       - gradle-cache:/home/gradle/.gradle
 
   test:
-    image: gradle:8.10.2-jdk21
+    image: gradle:9.6.0-jdk21
     working_dir: /workspace
     command: ["gradle", "test", "--no-daemon"]
     volumes:
