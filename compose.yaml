@@ -33,19 +33,6 @@ services:
       - .:/workspace
       - gradle-cache:/home/gradle/.gradle
 
-  test:
-    image: gradle:8.10.2-jdk21
-    working_dir: /workspace
-    user: root
-    command: ["gradle", "test", "--no-daemon"]
-    environment:
-      GRADLE_USER_HOME: /home/gradle/.gradle
-      TESTCONTAINERS_RYUK_DISABLED: "true"
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
-      - /var/run/docker.sock:/var/run/docker.sock
-
 volumes:
   postgres-data:
   gradle-cache:
