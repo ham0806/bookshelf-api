@@ -38,5 +38,12 @@ jobs:
         with:
           gradle-version: "8.10.2"
 
+      - name: Start PostgreSQL
+        run: docker compose up -d postgres
+
       - name: Run tests
         run: bash ./gradlew test --no-daemon
+
+      - name: Cleanup Docker Compose resources
+        if: always()
+        run: docker compose down -v --remove-orphans

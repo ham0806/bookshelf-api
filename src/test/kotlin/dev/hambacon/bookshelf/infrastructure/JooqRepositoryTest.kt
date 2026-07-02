@@ -1,7 +1,6 @@
 package dev.hambacon.bookshelf.infrastructure
 
 import dev.hambacon.bookshelf.domain.PublicationStatus
-import dev.hambacon.bookshelf.PostgresIntegrationTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -28,7 +27,7 @@ import java.util.UUID
 class JooqRepositoryTest(
     @Autowired private val authorRepository: AuthorRepository,
     @Autowired private val bookRepository: BookRepository,
-) : PostgresIntegrationTest() {
+) {
     @Test
     fun `著者を登録して更新できる`() {
         val author = authorRepository.insert(

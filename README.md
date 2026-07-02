@@ -25,7 +25,7 @@
 | PostgreSQL | アプリケーション実行時の RDB として使用しています。Docker Compose では `postgres:16-alpine` を起動します。 |
 | jOOQ | Repository 層で SQL を組み立て、RDB にアクセスするために使用しています。Flyway migration から jOOQ codegen を実行し、生成された table / field 定義を Repository で参照します。 |
 | Flyway | `src/main/resources/db/migration` 配下の migration による DB schema 管理に使用しています。 |
-| Testcontainers / PostgreSQL | 統合テスト用に PostgreSQL container を起動します。本番実行時と同じ DB 方言で Flyway migration、jOOQ、制約の動作を確認します。 |
+| Docker Compose / PostgreSQL | 統合テストとローカル起動用に PostgreSQL container を起動します。本番実行時と同じ DB 方言で Flyway migration、jOOQ、制約の動作を確認します。 |
 
 ### ビルド・実行・テスト
 
@@ -35,7 +35,7 @@
 | Gradle Wrapper | ローカルに Gradle をインストールしていない環境でも、同じ Gradle 8.10.2 で build、test、bootRun を実行するために使用しています。 |
 | mise | ローカル開発で Java 21 を揃えるための任意ツールとして使用できます。Docker Compose を使う場合は不要です。 |
 | Docker Compose | ローカルで PostgreSQL とアプリケーションをまとめて起動するために使用しています。 |
-| JUnit 5 / Spring Boot Test | Service の業務ルール単体テストと、HTTP API から PostgreSQL まで含めた統合テストに使用しています。 |
+| JUnit 5 / Spring Boot Test | Service の業務ルール単体テストと、HTTP API から Docker Compose の PostgreSQL まで含めた統合テストに使用しています。 |
 
 ## 起動
 
@@ -68,9 +68,10 @@ mise install
 
 ## テスト
 
-テストは Testcontainers で PostgreSQL を起動するため、Docker daemon に接続できる環境が必要です。ローカルに Java 21 がある場合は以下で実行できます。
+統合テストは PostgreSQL に接続するため、先に Docker Compose で PostgreSQL を起動します。ローカルに Java 21 がある場合は以下で実行できます。
 
 ```powershell
+docker compose up -d postgres
 .\gradlew.bat test
 ```
 
@@ -78,6 +79,7 @@ mise を使う場合は以下です。
 
 ```powershell
 mise install
+docker compose up -d postgres
 .\gradlew.bat test
 ```
 
@@ -85,7 +87,7 @@ mise install
 
 GitHub Actions でテストとセキュリティ確認を実行します。
 
-- `CI`: push / pull request 時に Gradle Wrapper で `test` を実行し、Service 単体テストと PostgreSQL Testcontainers を使った Spring Boot 統合テストを確認します。
+- `CI`: push / pull request 時に Docker Compose で PostgreSQL を起動し、Gradle Wrapper で `test` を実行して Service 単体テストと Spring Boot 統合テストを確認します。
 - `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle test --no-daemon` で build 可能な状態を確認します。
 - `Secret Scan`: Gitleaks により、token や秘密情報を誤って commit していないか確認します。
 - `Dependabot`: Gradle、Docker Compose、GitHub Actions の依存関係更新を週次で確認します。
