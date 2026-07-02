@@ -1,4 +1,8 @@
 spring:
+  datasource:
+    url: ${TEST_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bookshelf}
+    username: ${TEST_DATASOURCE_USERNAME:bookshelf}
+    password: ${TEST_DATASOURCE_PASSWORD:bookshelf}
   jooq:
     sql-dialect: POSTGRES
 
