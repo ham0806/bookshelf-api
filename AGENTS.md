@@ -15,15 +15,16 @@
 - jOOQ
 - Flyway
 - PostgreSQL
-- Testcontainers / PostgreSQL for integration tests
+- PostgreSQL for integration tests
 
 フロントエンドはありません。API は JSON を受け取り、JSON を返します。
 
 ## Commands
 
-検証では、Gradle Wrapper でテストを実行する。統合テストは Testcontainers で PostgreSQL を起動するため、Docker daemon が必要。
+検証では、Docker Compose で PostgreSQL を起動してから Gradle Wrapper でテストを実行する。
 
 ```powershell
+docker compose up -d postgres
 .\gradlew.bat test
 ```
 
@@ -31,6 +32,7 @@ mise で Java 21 を用意する場合:
 
 ```powershell
 mise install
+docker compose up -d postgres
 mise exec -- .\gradlew.bat test
 ```
 
@@ -86,7 +88,7 @@ Controller に業務ルールを寄せない。DB アクセスを Service に直
 ## Tests
 
 - Service の業務ルールは `BookServiceTest` のような単体テストで確認する。
-- API と DB 統合の動作は `BookshelfApiTest` のような Spring Boot 統合テストで確認する。DB は Testcontainers の PostgreSQL を使う。
+- API と DB 統合の動作は `BookshelfApiTest` のような Spring Boot 統合テストで確認する。DB は Docker Compose の PostgreSQL を使う。
 - 変更後は、可能な限り `.\gradlew.bat test` または `mise exec -- .\gradlew.bat test` を実行する。
 - アプリ起動確認などで Docker Compose のリソースが残った場合は `docker compose down` で片付ける。
 
