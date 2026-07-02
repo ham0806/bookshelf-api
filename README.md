@@ -31,10 +31,10 @@
 
 | 技術 | 用途 |
 | --- | --- |
-| Gradle | build、test、bootRun、jOOQ codegen の実行に使用しています。Docker Compose では `gradle:8.10.2-jdk21` image を使用します。 |
+| Gradle | build、test、bootRun、jOOQ codegen の実行に使用しています。CI では Gradle Wrapper でテストを実行します。 |
 | Gradle Wrapper | ローカルに Gradle をインストールしていない環境でも、同じ Gradle 8.10.2 で build、test、bootRun を実行するために使用しています。 |
 | mise | ローカル開発で Java 21 を揃えるための任意ツールとして使用できます。Docker Compose を使う場合は不要です。 |
-| Docker Compose | PostgreSQL とアプリケーション、またはテスト実行用 Gradle 環境をまとめて起動するために使用しています。 |
+| Docker Compose | ローカルで PostgreSQL とアプリケーションをまとめて起動するために使用しています。 |
 | JUnit 5 / Spring Boot Test | Service の業務ルール単体テストと、HTTP API から PostgreSQL まで含めた統合テストに使用しています。 |
 
 ## 起動
@@ -68,15 +68,7 @@ mise install
 
 ## テスト
 
-Docker の Gradle イメージを使う場合は以下です。
-
-```powershell
-docker compose run --rm test
-```
-
-このテストは Testcontainers で PostgreSQL を起動するため、Docker daemon に接続できる環境が必要です。
-
-ローカルに Java 21 がある場合は以下でも実行できます。
+テストは Testcontainers で PostgreSQL を起動するため、Docker daemon に接続できる環境が必要です。ローカルに Java 21 がある場合は以下で実行できます。
 
 ```powershell
 .\gradlew.bat test
@@ -93,7 +85,7 @@ mise install
 
 GitHub Actions でテストとセキュリティ確認を実行します。
 
-- `CI`: push / pull request 時に `docker compose run --rm test` を実行し、Service 単体テストと Spring Boot 統合テストを確認します。実行後は Docker Compose のリソースを片付けます。
+- `CI`: push / pull request 時に Gradle Wrapper で `test` を実行し、Service 単体テストと PostgreSQL Testcontainers を使った Spring Boot 統合テストを確認します。
 - `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle test --no-daemon` で build 可能な状態を確認します。
 - `Secret Scan`: Gitleaks により、token や秘密情報を誤って commit していないか確認します。
 - `Dependabot`: Gradle、Docker Compose、GitHub Actions の依存関係更新を週次で確認します。
