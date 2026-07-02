@@ -27,8 +27,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Start PostgreSQL
+        run: docker compose up -d postgres
+
       - name: Run tests
-        run: docker compose run --rm test
+        run: bash ./gradlew test --no-daemon
 
       - name: Cleanup Docker Compose resources
         if: always()

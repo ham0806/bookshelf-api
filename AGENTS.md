@@ -15,19 +15,28 @@
 - jOOQ
 - Flyway
 - PostgreSQL
-- H2 for tests
+- PostgreSQL for integration tests
 
 フロントエンドはありません。API は JSON を受け取り、JSON を返します。
 
 ## Commands
 
-Docker を使える環境では、以下を優先する。
+検証では、Docker Compose で PostgreSQL を起動してから Gradle Wrapper でテストを実行する。
 
 ```powershell
-docker compose run --rm test
+docker compose up -d postgres
+.\gradlew.bat test
 ```
 
-アプリケーションを起動する場合:
+mise で Java 21 を用意する場合:
+
+```powershell
+mise install
+docker compose up -d postgres
+mise exec -- .\gradlew.bat test
+```
+
+アプリケーションを Docker Compose で起動する場合:
 
 ```powershell
 docker compose up app
@@ -39,18 +48,10 @@ Docker Compose のリソースを片付ける場合:
 docker compose down
 ```
 
-ローカルに Java 21 がある場合のみ、以下も使用できる。
+ローカルに Java 21 がある場合は、PostgreSQL を起動したうえで以下も使用できる。
 
 ```powershell
-.\gradlew.bat test
-.\gradlew.bat bootRun
-```
-
-ローカル Java は任意で mise により管理できる。
-
-```powershell
-mise install
-.\gradlew.bat test
+.\gradlew.bat bootRun --args='--spring.profiles.active=local'
 ```
 
 ## Architecture
@@ -81,15 +82,15 @@ Controller に業務ルールを寄せない。DB アクセスを Service に直
 - nullable 型は意図を明確にし、存在しない DB row は制御された例外に変換する。
 - 入力制約は Bean Validation と DB 制約の両方を意識する。
 - schema 変更は Flyway migration で行う。
-- jOOQ codegen は使っていない。現状は小規模実装として `DSLContext` と明示的なテーブル定義を使う。
+- jOOQ codegen で生成した table / field 定義を Repository から参照する。
 - 新しい依存関係、広範囲リファクタ、API 互換性に影響する変更は、実装前に理由を明確にする。
 
 ## Tests
 
 - Service の業務ルールは `BookServiceTest` のような単体テストで確認する。
-- API と DB 統合の動作は `BookshelfApiTest` のような Spring Boot 統合テストで確認する。
-- 変更後は、可能な限り `docker compose run --rm test` を実行する。
-- テスト実行後に Docker Compose のリソースが残った場合は `docker compose down` で片付ける。
+- API と DB 統合の動作は `BookshelfApiTest` のような Spring Boot 統合テストで確認する。DB は Docker Compose の PostgreSQL を使う。
+- 変更後は、可能な限り `.\gradlew.bat test` または `mise exec -- .\gradlew.bat test` を実行する。
+- アプリ起動確認などで Docker Compose のリソースが残った場合は `docker compose down` で片付ける。
 
 ## Repository Hygiene
 

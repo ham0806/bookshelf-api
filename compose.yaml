@@ -23,19 +23,12 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bookshelf
       SPRING_DATASOURCE_USERNAME: bookshelf
       SPRING_DATASOURCE_PASSWORD: bookshelf
     ports:
       - "8080:8080"
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
-
-  test:
-    image: gradle:8.10.2-jdk21
-    working_dir: /workspace
-    command: ["gradle", "test", "--no-daemon"]
     volumes:
       - .:/workspace
       - gradle-cache:/home/gradle/.gradle
