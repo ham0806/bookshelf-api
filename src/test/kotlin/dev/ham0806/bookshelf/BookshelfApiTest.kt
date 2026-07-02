@@ -35,7 +35,7 @@ import java.util.UUID
 )
 class BookshelfApiTest(
     @Autowired private val restTemplate: TestRestTemplate,
-) {
+) : PostgresIntegrationTest() {
     @Test
     fun `著者に紐づく書籍を取得できる`() {
         val author = createAuthor("夏目 漱石", LocalDate.of(1867, 2, 9))
