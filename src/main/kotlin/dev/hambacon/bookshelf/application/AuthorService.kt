@@ -29,7 +29,7 @@ class AuthorService(
         findOrThrow(authorId).toResponse()
 
     @Transactional(readOnly = true)
-    fun findOrThrow(authorId: UUID): Author =
+    private fun findOrThrow(authorId: UUID): Author =
         authorRepository.findById(authorId)
             ?: throw ResourceNotFoundException("著者が見つかりません: $authorId")
 
