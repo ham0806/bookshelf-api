@@ -10,7 +10,7 @@
 
 | 技術 | 用途 |
 | --- | --- |
-| Kotlin 1.9.25 | アプリケーション本体とテストコードの実装言語として使用しています。 |
+| Kotlin 2.4.10 | アプリケーション本体とテストコードの実装言語として使用しています。 |
 | Java 21 | Kotlin/JVM の実行基盤として使用しています。Gradle toolchain で Java 21 を指定しています。 |
 | Spring Boot 3.3.13 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。3.3 系で利用可能な最終パッチを使用しています。 |
 | Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
@@ -32,7 +32,7 @@
 | 技術 | 用途 |
 | --- | --- |
 | Gradle | build、test、bootRun、jOOQ codegen の実行に使用しています。CI では Gradle Wrapper でテストを実行します。 |
-| Gradle Wrapper | ローカルに Gradle をインストールしていない環境でも、同じ Gradle 8.10.2 で build、test、bootRun を実行するために使用しています。 |
+| Gradle Wrapper | ローカルに Gradle をインストールしていない環境でも、同じ Gradle 9.6.1 で build、test、bootRun を実行するために使用しています。 |
 | mise | ローカル開発で Java 21 を揃えるための任意ツールとして使用できます。Docker Compose を使う場合は不要です。 |
 | Docker Compose | ローカルで PostgreSQL とアプリケーションをまとめて起動するために使用しています。 |
 | JUnit 5 / Spring Boot Test | Service の業務ルール単体テストと、HTTP API から Docker Compose の PostgreSQL まで含めた統合テストに使用しています。 |
