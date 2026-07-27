@@ -12,7 +12,7 @@
 | --- | --- |
 | Kotlin 1.9.25 | アプリケーション本体とテストコードの実装言語として使用しています。 |
 | Java 21 | Kotlin/JVM の実行基盤として使用しています。Gradle toolchain で Java 21 を指定しています。 |
-| Spring Boot 3.3.13 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。3.3 系の最新パッチを使い、互換性を保ちながら修正済みの不具合と脆弱性対応を取り込みます。 |
+| Spring Boot 3.3.13 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。3.3 系で利用可能な最終パッチを使用しています。 |
 | Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
 | Spring Validation | request DTO の入力制約を Bean Validation で検証するために使用しています。 |
 | Springdoc OpenAPI / Swagger UI | Controller と DTO から OpenAPI 仕様を自動生成し、Swagger UI で API を確認するために使用しています。 |
@@ -71,7 +71,7 @@ mise install
 統合テストは PostgreSQL に接続するため、先に Docker Compose で PostgreSQL を起動します。ローカルに Java 21 がある場合は以下で実行できます。
 
 ```powershell
-docker compose up -d postgres
+docker compose up -d --wait postgres
 .\gradlew.bat test
 ```
 
@@ -79,7 +79,7 @@ mise を使う場合は以下です。
 
 ```powershell
 mise install
-docker compose up -d postgres
+docker compose up -d --wait postgres
 .\gradlew.bat test
 ```
 

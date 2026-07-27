@@ -24,7 +24,7 @@
 検証では、Docker Compose で PostgreSQL を起動してから Gradle Wrapper でテストを実行する。
 
 ```powershell
-docker compose up -d postgres
+docker compose up -d --wait postgres
 .\gradlew.bat test
 ```
 
@@ -32,7 +32,7 @@ mise で Java 21 を用意する場合:
 
 ```powershell
 mise install
-docker compose up -d postgres
+docker compose up -d --wait postgres
 mise exec -- .\gradlew.bat test
 ```
 

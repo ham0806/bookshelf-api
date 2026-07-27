@@ -39,7 +39,7 @@ jobs:
           gradle-version: "8.10.2"
 
       - name: Start PostgreSQL
-        run: docker compose up -d postgres
+        run: docker compose up -d --wait postgres
 
       - name: Run tests
         run: bash ./gradlew test --no-daemon
