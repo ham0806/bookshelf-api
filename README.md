@@ -66,6 +66,8 @@ mise install
 
 環境変数 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD` で上書きできます。profile 未指定時は環境変数の指定を必須にし、公開環境でローカル用の接続情報を誤用しにくい構成にしています。
 
+`POSTGRES_PASSWORD` は PostgreSQL の初回初期化時に使用されます。既存の `postgres-data` volume がある場合、環境変数を変更しても既存ロールのパスワードは変更されません。既存データを残す場合は PostgreSQL 上で `ALTER ROLE bookshelf WITH PASSWORD '...'` を実行し、開発用データを破棄して再初期化する場合は volume の扱いを確認してから実施してください。
+
 ## テスト
 
 統合テストは PostgreSQL に接続するため、先に Docker Compose で PostgreSQL を起動します。ローカルに Java 21 がある場合は以下で実行できます。
@@ -103,6 +105,26 @@ OpenAPI 仕様は Springdoc OpenAPI により、実行中のアプリケーシ�
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 - OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+### エラーレスポンス
+
+入力値の検証エラーや JSON の形式エラーは、Problem Details 形式で返します。入力値の検証エラーでは、フィールドごとの詳細を `errors` 配列で確認できます。
+
+```json
+{
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "入力値が不正です",
+  "errors": [
+    {
+      "field": "price",
+      "message": "0.00 以上でなければなりません"
+    }
+  ]
+}
+```
+
+不正な JSON は `Malformed request`、UUID などのパスパラメータの形式不正は `Invalid parameter` として返します。
 
 ## API 例
 
