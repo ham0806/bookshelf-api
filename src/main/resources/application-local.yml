@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bookshelf}
+    username: ${SPRING_DATASOURCE_USERNAME:bookshelf}
+    password: ${SPRING_DATASOURCE_PASSWORD:bookshelf}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+server:
+  error:
+    include-message: always

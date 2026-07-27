@@ -2,16 +2,8 @@ package dev.hambacon.bookshelf.infrastructure
 
 import dev.hambacon.bookshelf.domain.Book
 import dev.hambacon.bookshelf.domain.PublicationStatus
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_CREATED_AT
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_ID
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_PRICE
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_PUBLICATION_STATUS
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_TITLE
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOKS_UPDATED_AT
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOK_AUTHORS
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOK_AUTHORS_AUTHOR_ID
-import dev.hambacon.bookshelf.infrastructure.DbTables.BOOK_AUTHORS_BOOK_ID
+import dev.hambacon.bookshelf.jooq.Tables.BOOKS
+import dev.hambacon.bookshelf.jooq.Tables.BOOK_AUTHORS
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.springframework.stereotype.Repository
@@ -33,12 +25,12 @@ class JooqBookRepository(
         val now = OffsetDateTime.now(ZoneOffset.UTC)
 
         dsl.insertInto(BOOKS)
-            .set(BOOKS_ID, bookId)
-            .set(BOOKS_TITLE, title)
-            .set(BOOKS_PRICE, price)
-            .set(BOOKS_PUBLICATION_STATUS, publicationStatus.name)
-            .set(BOOKS_CREATED_AT, now)
-            .set(BOOKS_UPDATED_AT, now)
+            .set(BOOKS.ID, bookId)
+            .set(BOOKS.TITLE, title)
+            .set(BOOKS.PRICE, price)
+            .set(BOOKS.PUBLICATION_STATUS, publicationStatus.name)
+            .set(BOOKS.CREATED_AT, now)
+            .set(BOOKS.UPDATED_AT, now)
             .execute()
 
         return findById(bookId) ?: error("登録した書籍が取得できません: $bookId")
@@ -53,59 +45,59 @@ class JooqBookRepository(
         val now = OffsetDateTime.now(ZoneOffset.UTC)
 
         dsl.update(BOOKS)
-            .set(BOOKS_TITLE, title)
-            .set(BOOKS_PRICE, price)
-            .set(BOOKS_PUBLICATION_STATUS, publicationStatus.name)
-            .set(BOOKS_UPDATED_AT, now)
-            .where(BOOKS_ID.eq(bookId))
+            .set(BOOKS.TITLE, title)
+            .set(BOOKS.PRICE, price)
+            .set(BOOKS.PUBLICATION_STATUS, publicationStatus.name)
+            .set(BOOKS.UPDATED_AT, now)
+            .where(BOOKS.ID.eq(bookId))
             .execute()
     }
 
     override fun findById(bookId: UUID): Book? =
         baseSelect()
-            .where(BOOKS_ID.eq(bookId))
+            .where(BOOKS.ID.eq(bookId))
             .fetchOne { it.toBook() }
 
     override fun findByAuthorId(authorId: UUID): List<Book> =
         baseSelect()
             .join(BOOK_AUTHORS)
-            .on(BOOKS_ID.eq(BOOK_AUTHORS_BOOK_ID))
-            .where(BOOK_AUTHORS_AUTHOR_ID.eq(authorId))
-            .orderBy(BOOKS_TITLE.asc(), BOOKS_ID.asc())
+            .on(BOOKS.ID.eq(BOOK_AUTHORS.BOOK_ID))
+            .where(BOOK_AUTHORS.AUTHOR_ID.eq(authorId))
+            .orderBy(BOOKS.TITLE.asc(), BOOKS.ID.asc())
             .fetch { it.toBook() }
 
     override fun replaceAuthors(bookId: UUID, authorIds: List<UUID>) {
         dsl.deleteFrom(BOOK_AUTHORS)
-            .where(BOOK_AUTHORS_BOOK_ID.eq(bookId))
+            .where(BOOK_AUTHORS.BOOK_ID.eq(bookId))
             .execute()
 
         authorIds.forEach { authorId ->
             dsl.insertInto(BOOK_AUTHORS)
-                .set(BOOK_AUTHORS_BOOK_ID, bookId)
-                .set(BOOK_AUTHORS_AUTHOR_ID, authorId)
+                .set(BOOK_AUTHORS.BOOK_ID, bookId)
+                .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
                 .execute()
         }
     }
 
     private fun baseSelect() =
         dsl.select(
-            BOOKS_ID,
-            BOOKS_TITLE,
-            BOOKS_PRICE,
-            BOOKS_PUBLICATION_STATUS,
-            BOOKS_CREATED_AT,
-            BOOKS_UPDATED_AT,
+            BOOKS.ID,
+            BOOKS.TITLE,
+            BOOKS.PRICE,
+            BOOKS.PUBLICATION_STATUS,
+            BOOKS.CREATED_AT,
+            BOOKS.UPDATED_AT,
         )
             .from(BOOKS)
 
     private fun Record.toBook(): Book =
         Book(
-            id = get(BOOKS_ID),
-            title = get(BOOKS_TITLE),
-            price = get(BOOKS_PRICE),
-            publicationStatus = PublicationStatus.valueOf(get(BOOKS_PUBLICATION_STATUS)),
-            createdAt = get(BOOKS_CREATED_AT),
-            updatedAt = get(BOOKS_UPDATED_AT),
+            id = get(BOOKS.ID),
+            title = get(BOOKS.TITLE),
+            price = get(BOOKS.PRICE),
+            publicationStatus = PublicationStatus.valueOf(get(BOOKS.PUBLICATION_STATUS)),
+            createdAt = get(BOOKS.CREATED_AT),
+            updatedAt = get(BOOKS.UPDATED_AT),
         )
 }
 
