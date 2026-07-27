@@ -10,20 +10,20 @@
 
 | 技術 | 用途 |
 | --- | --- |
-| Kotlin 2.4.10 | アプリケーション本体とテストコードの実装言語として使用しています。 |
+| Kotlin 2.4.0 | アプリケーション本体とテストコードの実装言語として使用しています。CodeQL の現行サポート範囲に合わせています。 |
 | Java 21 | Kotlin/JVM の実行基盤として使用しています。Gradle toolchain で Java 21 を指定しています。 |
-| Spring Boot 3.3.13 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。3.3 系で利用可能な最終パッチを使用しています。 |
+| Spring Boot 3.5.16 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。 |
 | Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
 | Spring Validation | request DTO の入力制約を Bean Validation で検証するために使用しています。 |
-| Springdoc OpenAPI / Swagger UI | Controller と DTO から OpenAPI 仕様を自動生成し、Swagger UI で API を確認するために使用しています。 |
+| Springdoc OpenAPI 2.8.17 / Swagger UI | Controller と DTO から OpenAPI 仕様を自動生成し、Swagger UI で API を確認するために使用しています。 |
 | Jackson Kotlin module | Kotlin の data class と JSON の相互変換に使用しています。 |
 
 ### データベース
 
 | 技術 | 用途 |
 | --- | --- |
-| PostgreSQL | アプリケーション実行時の RDB として使用しています。Docker Compose では `postgres:16-alpine` を起動します。 |
-| jOOQ | Repository 層で SQL を組み立て、RDB にアクセスするために使用しています。Flyway migration から jOOQ codegen を実行し、生成された table / field 定義を Repository で参照します。 |
+| PostgreSQL | アプリケーション実行時の RDB として使用しています。Docker Compose では `postgres:16.14-alpine` を起動します。 |
+| jOOQ 3.19.36 | Repository 層で SQL を組み立て、RDB にアクセスするために使用しています。Flyway migration から jOOQ codegen を実行し、生成された table / field 定義を Repository で参照します。 |
 | Flyway | `src/main/resources/db/migration` 配下の migration による DB schema 管理に使用しています。 |
 | Docker Compose / PostgreSQL | 統合テストとローカル起動用に PostgreSQL container を起動します。本番実行時と同じ DB 方言で Flyway migration、jOOQ、制約の動作を確認します。 |
 
@@ -62,9 +62,11 @@ mise install
 
 - URL: `jdbc:postgresql://localhost:5432/bookshelf`
 - User: `bookshelf`
-- Password: `bookshelf`
+- Password: `bookshelf`（`POSTGRES_PASSWORD` で変更可能）
 
 環境変数 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD` で上書きできます。profile 未指定時は環境変数の指定を必須にし、公開環境でローカル用の接続情報を誤用しにくい構成にしています。
+
+`POSTGRES_PASSWORD` は PostgreSQL の初回初期化時に使用されます。既存の `postgres-data` volume がある場合、環境変数を変更しても既存ロールのパスワードは変更されません。既存データを残す場合は PostgreSQL 上で `ALTER ROLE bookshelf WITH PASSWORD '...'` を実行し、開発用データを破棄して再初期化する場合は volume の扱いを確認してから実施してください。
 
 ## テスト
 
@@ -88,7 +90,7 @@ docker compose up -d --wait postgres
 GitHub Actions でテストとセキュリティ確認を実行します。
 
 - `CI`: push / pull request 時に Docker Compose で PostgreSQL を起動し、Gradle Wrapper で `test` を実行して Service 単体テストと Spring Boot 統合テストを確認します。
-- `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle test --no-daemon` で build 可能な状態を確認します。
+- `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle classes --no-daemon` で解析対象を build 可能な状態にします。
 - `Secret Scan`: Gitleaks により、token や秘密情報を誤って commit していないか確認します。
 - `Dependabot`: Gradle、Docker Compose、GitHub Actions の依存関係更新を週次で確認します。
 
@@ -103,6 +105,26 @@ OpenAPI 仕様は Springdoc OpenAPI により、実行中のアプリケーシ�
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 - OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+### エラーレスポンス
+
+入力値の検証エラーや JSON の形式エラーは、Problem Details 形式で返します。入力値の検証エラーでは、フィールドごとの詳細を `errors` 配列で確認できます。
+
+```json
+{
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "入力値が不正です",
+  "errors": [
+    {
+      "field": "price",
+      "message": "0.00 以上でなければなりません"
+    }
+  ]
+}
+```
+
+不正な JSON は `Malformed request`、UUID などのパスパラメータの形式不正は `Invalid parameter` として返します。
 
 ## API 例
 

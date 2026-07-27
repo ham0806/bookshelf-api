@@ -1,5 +1,6 @@
 package dev.hambacon.bookshelf
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import dev.hambacon.bookshelf.api.AuthorResponse
 import dev.hambacon.bookshelf.api.BookResponse
 import dev.hambacon.bookshelf.api.CreateAuthorRequest
@@ -35,6 +36,7 @@ import java.util.UUID
 )
 class BookshelfApiTest(
     @Autowired private val restTemplate: TestRestTemplate,
+    @Autowired private val objectMapper: ObjectMapper,
 ) {
     @Test
     fun `著者に紐づく書籍を取得できる`() {
@@ -154,6 +156,57 @@ class BookshelfApiTest(
         )
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    fun `バリデーションエラーはフィールド別のProblem Detailsを返す`() {
+        val response = restTemplate.postForEntity(
+            "/api/books",
+            CreateBookRequest(
+                title = "",
+                price = BigDecimal("-1.00"),
+                authorIds = emptyList(),
+            ),
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("application/problem+json", response.headers.contentType?.toString())
+
+        val body = objectMapper.readTree(response.body)
+        assertEquals("Validation failed", body["title"].asText())
+        assertTrue(body["errors"].any { it["field"].asText() == "title" })
+        assertTrue(body["errors"].any { it["field"].asText() == "price" })
+    }
+
+    @Test
+    fun `不正なJSONはProblem Detailsを返す`() {
+        val response = restTemplate.postForEntity(
+            "/api/authors",
+            HttpEntity(
+                "{\"name\": \"不完全なJSON\"",
+                org.springframework.http.HttpHeaders().apply {
+                    contentType = org.springframework.http.MediaType.APPLICATION_JSON
+                },
+            ),
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("application/problem+json", response.headers.contentType?.toString())
+        assertTrue(response.body?.contains("\"title\":\"Malformed request\"") == true)
+    }
+
+    @Test
+    fun `不正なUUIDのパスパラメータはProblem Detailsを返す`() {
+        val response = restTemplate.getForEntity(
+            "/api/authors/not-a-uuid",
+            String::class.java,
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("application/problem+json", response.headers.contentType?.toString())
+        assertTrue(response.body?.contains("\"title\":\"Invalid parameter\"") == true)
     }
 
     @Test
