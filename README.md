@@ -10,7 +10,7 @@
 
 | 技術 | 用途 |
 | --- | --- |
-| Kotlin 2.4.10 | アプリケーション本体とテストコードの実装言語として使用しています。 |
+| Kotlin 2.4.0 | アプリケーション本体とテストコードの実装言語として使用しています。CodeQL の現行サポート範囲に合わせています。 |
 | Java 21 | Kotlin/JVM の実行基盤として使用しています。Gradle toolchain で Java 21 を指定しています。 |
 | Spring Boot 3.5.16 | Web API、DI、設定管理、transaction 管理、テスト起動の基盤として使用しています。 |
 | Spring Web | `@RestController` による JSON API のエンドポイント実装に使用しています。 |
