@@ -8,6 +8,10 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    groups:
+      gradle-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker-compose"
     directory: "/"
@@ -17,6 +21,10 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    groups:
+      docker-compose-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -26,3 +34,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
