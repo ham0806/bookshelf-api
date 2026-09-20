@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16.14-alpine
+    image: postgres:18.4-alpine
     environment:
       POSTGRES_DB: bookshelf
       POSTGRES_USER: bookshelf
@@ -16,7 +16,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   app:
-    image: gradle:9.6.1-jdk21
+    image: gradle:9.7.0-jdk21
     working_dir: /workspace
     command: ["gradle", "bootRun", "--no-daemon"]
     depends_on:
