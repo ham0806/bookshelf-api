@@ -28,6 +28,8 @@ docker compose up -d --wait postgres
 .\gradlew.bat test
 ```
 
+make がある環境では `make test`（PostgreSQL 起動 + `gradlew test`）、`make check`（DB 不要のコンパイル確認）も使える。
+
 mise で Java 21 を用意する場合:
 
 ```powershell
@@ -89,7 +91,7 @@ Controller に業務ルールを寄せない。DB アクセスを Service に直
 
 - Service の業務ルールは `BookServiceTest` のような単体テストで確認する。
 - API と DB 統合の動作は `BookshelfApiTest` のような Spring Boot 統合テストで確認する。DB は Docker Compose の PostgreSQL を使う。
-- 変更後は、可能な限り `.\gradlew.bat test` または `mise exec -- .\gradlew.bat test` を実行する。
+- 変更後は、可能な限り `make test`、`.\gradlew.bat test` または `mise exec -- .\gradlew.bat test` を実行する。
 - アプリ起動確認などで Docker Compose のリソースが残った場合は `docker compose down` で片付ける。
 
 ## Repository Hygiene
