@@ -70,7 +70,15 @@ mise install
 
 ## テスト
 
-統合テストは PostgreSQL に接続するため、先に Docker Compose で PostgreSQL を起動します。ローカルに Java 21 がある場合は以下で実行できます。
+統合テストは PostgreSQL に接続するため、先に Docker Compose で PostgreSQL を起動します。`make` が使える環境では、PostgreSQL の起動からテスト実行までを `make test` でまとめて行えます。
+
+```powershell
+make test
+```
+
+DB を使わないコンパイル確認だけ行う場合は `make check`（内部では `gradlew testClasses`）を使えます。
+
+`make` がなく、ローカルに Java 21 がある場合は以下でも実行できます。
 
 ```powershell
 docker compose up -d --wait postgres
@@ -85,16 +93,22 @@ docker compose up -d --wait postgres
 .\gradlew.bat test
 ```
 
+任意利用として、push 前にテストを自動実行する Git hook も用意しています。有効にするには以下を実行します。
+
+```powershell
+git config core.hooksPath .githooks
+```
+
 ## CI / 品質確認
 
-GitHub Actions でテストとセキュリティ確認を実行します。
+GitHub Actions の実行量を抑えるため、テストはローカル実行を基本とし、CI は軽い確認と手動実行を中心にしています。
 
-- `CI`: push / pull request 時に Docker Compose で PostgreSQL を起動し、Gradle Wrapper で `test` を実行して Service 単体テストと Spring Boot 統合テストを確認します。
-- `CodeQL`: Kotlin / Java 向けの静的解析を実行します。解析前に `gradle classes --no-daemon` で解析対象を build 可能な状態にします。
-- `Secret Scan`: Gitleaks により、token や秘密情報を誤って commit していないか確認します。
+- `CI`: `develop` への push / pull request 時に `gradlew testClasses` でコンパイル確認のみ実行します。PostgreSQL を使うテストは `workflow_dispatch` の手動実行時のみ動作します。テストは原則として `make test` でローカル実行してください。
+- `CodeQL`: Kotlin / Java 向けの静的解析を `develop` への push 時と手動実行時のみ実行します。解析前に `gradle classes --no-daemon` で解析対象を build 可能な状態にします。
+- `Secret Scan`: `develop` への push 時と手動実行時のみ、Gitleaks により token や秘密情報を誤って commit していないか確認します。
 - `Dependabot`: Gradle、Docker Compose、GitHub Actions の依存関係更新を週次で確認します。
 
-README や docs だけの変更では、通常の CI テストは `paths-ignore` により省略されます。
+README や docs だけの変更では、CI のコンパイル確認は `paths-ignore` により省略されます。
 
 ## API 仕様
 
