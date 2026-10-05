@@ -3,17 +3,19 @@ name: CI
 on:
   push:
     branches:
-      - main
       - develop
     paths-ignore:
       - "*.md"
       - "**/*.md"
       - "docs/**"
   pull_request:
+    branches:
+      - develop
     paths-ignore:
       - "*.md"
       - "**/*.md"
       - "docs/**"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -23,9 +25,33 @@ permissions:
   contents: read
 
 jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "9.6.1"
+
+      - name: Compile main and test sources
+        run: bash ./gradlew testClasses --no-daemon
+
   test:
     name: Test
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout

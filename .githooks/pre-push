@@ -1,0 +1,7 @@
+#!/bin/sh
+# push 前にローカルでテストを実行する任意フック。
+# 有効化: git config core.hooksPath .githooks
+set -e
+
+docker compose up -d --wait postgres
+./gradlew test --no-daemon
